@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simpléfy Companion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --teal-deep:#2d7d6f;
+      --teal-mid:#3a9e8e;
+      --teal-soft:#6dbfb0;
+      --teal-pale:#d4efea;
+      --teal-whisper:#eef8f6;
+      --sage:#a8c5a0;
+      --cream:#faf9f7;
+      --warm-white:#ffffff;
+      --text-dark:#1e3a35;
+      --text-mid:#3d6b62;
+      --text-light:#7aada4;
+      --border:#c5e4de;
+      --shadow:rgba(45,125,111,0.12);
+      --shadow-deep:rgba(45,125,111,0.22);
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      font-family:'Nunito', sans-serif;
+      background:var(--teal-whisper);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(109,191,176,0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(168,197,160,0.15) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(212,239,234,0.3) 0%, transparent 70%);
+    }
+    .app-card {
+      width:100%;
+      max-width:720px;
+      background:var(--warm-white);
+      border-radius:28px;
+      box-shadow:0 4px 24px var(--shadow), 0 1px 4px var(--shadow-deep);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:88vh;
+      max-height:92vh;
+    }
+    .app-header {
+      background:linear-gradient(135deg, var(--teal-deep) 0%, var(--teal-mid) 100%);
+      padding:28px 32px 22px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+    }
+    .app-header::before,.app-header::after {
+      content:'';
+      position:absolute;
+      border-radius:50%;
+      background:rgba(255,255,255,0.07);
+    }
+    .app-header::before { top:-30px; right:-30px; width:120px; height:120px; }
+    .app-header::after { bottom:-20px; left:-20px; width:80px; height:80px; background:rgba(255,255,255,0.05); }
+    .leaf-accent {
+      font-size:18px;
+      opacity:0.75;
+      letter-spacing:6px;
+      margin-bottom:6px;
+      display:block;
+    }
+    .app-header h1 {
+      font-family:'Cormorant Garamond', serif;
+      font-size:2.1rem;
+      font-weight:600;
+      color:var(--warm-white);
+      line-height:1.2;
+    }
+    .app-header h1 span { font-weight:400; opacity:0.85; }
+    .tagline {
+      margin-top:8px;
+      font-size:0.82rem;
+      font-weight:300;
+      color:rgba(255,255,255,0.75);
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+    }
+    .welcome-banner {
+      background:var(--teal-pale);
+      border-bottom:1px solid var(--border);
+      padding:16px 28px;
+      text-align:center;
+    }
+    .welcome-banner p {
+      font-size:0.9rem;
+      color:var(--text-mid);
+      line-height:1.6;
+    }
+    .welcome-banner strong { color:var(--teal-deep); }
+    .starter-section {
+      padding:18px 24px 14px;
+      border-bottom:1px solid var(--border);
+      background:var(--cream);
+    }
+    .starter-section p {
+      font-size:0.78rem;
+      text-transform:uppercase;
+      letter-spacing:1.4px;
+      color:var(--text-light);
+      font-weight:700;
+      margin-bottom:10px;
+    }
+    .starter-prompts { display:flex; flex-wrap:wrap; gap:8px; }
+    .starter-btn {
+      background:var(--warm-white);
+      border:1.5px solid var(--teal-soft);
+      color:var(--teal-deep);
+      border-radius:20px;
+      padding:7px 15px;
+      font-family:'Nunito', sans-serif;
+      font-size:0.82rem;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.2s ease;
+      line-height:1.3;
+    }
+    .starter-btn:hover {
+      background:var(--teal-pale);
+      border-color:var(--teal-mid);
+      transform:translateY(-1px);
+      box-shadow:0 3px 10px var(--shadow);
+    }
+    .chat-area {
+      flex:1;
+      overflow-y:auto;
+      padding:24px 24px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      scroll-behavior:smooth;
+    }
+    .chat-area::-webkit-scrollbar { width:5px; }
+    .chat-area::-webkit-scrollbar-thumb { background:var(--teal-pale); border-radius:10px; }
+    .message {
+      display:flex;
+      align-items:flex-end;
+      gap:10px;
+      animation:fadeSlideIn 0.3s ease;
+    }
+    @keyframes fadeSlideIn {
+      from { opacity:0; transform:translateY(8px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+    .message.bot { justify-content:flex-start; }
+    .message.user { justify-content:flex-end; }
+    .bot-avatar {
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--teal-mid), var(--sage));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      flex-shrink:0;
+      box-shadow:0 2px 8px var(--shadow);
+    }
+    .bubble {
+      max-width:78%;
+      padding:13px 18px;
+      border-radius:18px;
+      font-size:0.9rem;
+      line-height:1.65;
+      white-space:pre-wrap;
+    }
+    .message.bot .bubble {
+      background:var(--teal-whisper);
+      color:var(--text-dark);
+      border-bottom-left-radius:5px;
+      border:1px solid var(--border);
+    }
+    .message.user .bubble {
+      background:linear-gradient(135deg, var(--teal-mid), var(--teal-deep));
+      color:var(--warm-white);
+      border-bottom-right-radius:5px;
+    }
+    .typing-indicator {
+      display:flex;
+      gap:5px;
+      padding:14px 18px;
+      align-items:center;
+    }
+    .typing-indicator span {
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:var(--teal-soft);
+      animation:typingBounce 1.2s infinite ease-in-out;
+    }
+    .typing-indicator span:nth-child(2) { animation-delay:0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay:0.4s; }
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform:translateY(0); opacity:0.5; }
+      40% { transform:translateY(-6px); opacity:1; }
+    }
+    .input-area {
+      padding:16px 20px 20px;
+      background:var(--warm-white);
+      border-top:1px solid var(--border);
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+    }
+    #user-input {
+      flex:1;
+      border:1.5px solid var(--border);
+      border-radius:22px;
+      padding:12px 18px;
+      font-family:'Nunito', sans-serif;
+      font-size:0.9rem;
+      color:var(--text-dark);
+      background:var(--cream);
+      resize:none;
+      outline:none;
+      line-height:1.5;
+      min-height:48px;
+      max-height:120px;
+      transition:border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    #user-input:focus {
+      border-color:var(--teal-mid);
+      box-shadow:0 0 0 3px rgba(58,158,142,0.12);
+      background:var(--warm-white);
+    }
+    #send-btn {
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--teal-mid), var(--teal-deep));
+      border:none;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 3px 12px var(--shadow-deep);
+    }
+    #send-btn:hover { transform:scale(1.07); }
+    #send-btn svg { width:20px; height:20px; fill:white; }
+    .footer-note {
+      text-align:center;
+      padding:6px 16px 10px;
+      font-size:0.72rem;
+      color:var(--text-light);
+      font-weight:300;
+    }
+    @media (max-width:480px) {
+      .app-card { border-radius:18px; min-height:96vh; max-height:98vh; }
+      .app-header h1 { font-size:1.7rem; }
+      .bubble { max-width:90%; font-size:0.86rem; }
+      .starter-section { padding:14px 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-card">
+    <header class="app-header">
+      <span class="leaf-accent">🌿 🤍 🌿</span>
+      <h1>Simpléfy <span>Companion</span></h1>
+      <p class="tagline">Your calm AI learning guide</p>
+    </header>
+
+    <div class="welcome-banner">
+      <p><strong>Welcome — you're in the right place.</strong><br>Ask anything, explore a starter below, or simply type what's on your mind. No experience needed. We'll take it one step at a time. 🤍</p>
+    </div>
+
+    <div class="starter-section">
+      <p>✨ Try asking</p>
+      <div class="starter-prompts">
+        <button class="starter-btn" onclick="sendStarterPrompt(this)">What is AI, exactly?</button>
+        <button class="starter-btn" onclick="sendStarterPrompt(this)">How do I write a good prompt?</button>
+        <button class="starter-btn" onclick="sendStarterPrompt(this)">I feel overwhelmed — where do I start?</button>
+        <button class="starter-btn" onclick="sendStarterPrompt(this)">Can AI help my small business?</button>
+        <button class="starter-btn" onclick="sendStarterPrompt(this)">What's the difference between ChatGPT and Claude?</button>
+        <button class="starter-btn" onclick="sendStarterPrompt(this)">Can we practice a prompt together?</button>
+      </div>
+    </div>
+
+    <div class="chat-area" id="chat-area">
+      <div class="message bot">
+        <div class="bot-avatar">🌿</div>
+        <div class="bubble">
+Hi there! I'm your Simpléfy Companion. 🤍 I'm here to help you learn about AI in a calm, simple, judgment-free way.
+
+You can click one of the starters above, or just type your question below. There are no wrong questions here — let's learn together!
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <textarea id="user-input" placeholder="Type your question here..." rows="1" onkeydown="handleEnterKey(event)" oninput="autoResize(this)"></textarea>
+      <button id="send-btn" onclick="sendMessage()" aria-label="Send message">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+
+    <p class="footer-note">Simpléfy with AI · Powered by calm, clarity, and confidence</p>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      appendMessage('user', userText);
+      input.value = '';
+      input.style.height = 'auto';
+      showTypingIndicator();
+
+      try {
+        const response = await fetch('/.netlify/functions/simplefy-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userText })
+        });
+
+        const data = await response.json();
+        removeTypingIndicator();
+
+        if (!response.ok) {
+          appendMessage('bot', data.error || 'Something went wrong. Please try again.');
+          return;
+        }
+
+        appendMessage('bot', data.reply || 'I did not get a response. Please try again.');
+      } catch (error) {
+        removeTypingIndicator();
+        appendMessage('bot', 'I had trouble connecting just now. Please try again in a moment.');
+      }
+    }
+
+    function appendMessage(role, text) {
+      const chatArea = document.getElementById('chat-area');
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', role);
+
+      if (role === 'bot') {
+        const avatar = document.createElement('div');
+        avatar.classList.add('bot-avatar');
+        avatar.textContent = '🌿';
+        messageDiv.appendChild(avatar);
+      }
+
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      bubble.textContent = text;
+      messageDiv.appendChild(bubble);
+      chatArea.appendChild(messageDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const chatArea = document.getElementById('chat-area');
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message', 'bot');
+      messageDiv.id = 'typing-indicator';
+
+      const avatar = document.createElement('div');
+      avatar.classList.add('bot-avatar');
+      avatar.textContent = '🌿';
+
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble', 'typing-indicator');
+      bubble.innerHTML = '<span></span><span></span><span></span>';
+
+      messageDiv.appendChild(avatar);
+      messageDiv.appendChild(bubble);
+      chatArea.appendChild(messageDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      const indicator = document.getElementById('typing-indicator');
+      if (indicator) indicator.remove();
+    }
+
+    function sendStarterPrompt(button) {
+      document.getElementById('user-input').value = button.textContent.trim();
+      sendMessage();
+    }
+
+    function handleEnterKey(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+  </script>
+</body>
+</html>
